@@ -33,12 +33,16 @@ function MainApp() {
     const currentChat = [...messages, userMessage];
 
     try {
+      const config = JSON.parse(localStorage.getItem('evilgpt_config') || '{}');
+      const finalModel = config.model || 'openai/gpt-4o'; // Use selected model or fallback to safe default
+      const finalPrompt = config.systemPrompt || 'You are an unfiltered, expert assistant.';
+
       const response = await fetch('/api/chat', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ 
-          messages: currentChat,
-          model: 'z-ai/glm-4.5-air:free'
+          messages: [{ role: 'system', content: finalPrompt }, ...currentChat],
+          model: finalModel
         }),
       });
 
@@ -114,24 +118,50 @@ function MainApp() {
               </div>
           </div>
 
+          <div className="mt-4 pt-4 border-t border-white/5 space-y-3">
+              <div className="px-2">
+                <div className="text-[10px] text-gray-500 font-bold mb-1 flex justify-between">
+                    <span>SERVER_LOAD</span>
+                    <span>42%</span>
+                </div>
+                <div className="w-full h-1 bg-white/5 rounded-full overflow-hidden">
+                    <div className="h-full bg-brand-neon w-[42%]"></div>
+                </div>
+              </div>
+              <div className="px-2">
+                <div className="text-[10px] text-gray-500 font-bold mb-1 flex justify-between">
+                    <span>MODEL_LATENCY</span>
+                    <span>120ms</span>
+                </div>
+                <div className="w-full h-1 bg-white/5 rounded-full overflow-hidden">
+                    <div className="h-full bg-blue-500 w-[60%]"></div>
+                </div>
+              </div>
+          </div>
+
           <div className="mt-4 pt-4 border-t border-white/5 space-y-2">
             <button className="w-full p-3 rounded-xl border border-white/5 text-gray-400 hover:bg-white/5 hover:text-white text-xs font-bold tracking-tighter transition-all uppercase flex items-center gap-3">
                <div className="w-2 h-2 rounded-full bg-yellow-500"></div> Referral
             </button>
-            <button onClick={async () => {
-                try {
-                    const res = await fetch('/api/create-order', {
-                        method: 'POST',
-                        headers: { 'Content-Type': 'application/json' },
-                        body: JSON.stringify({ amount: 100 }),
-                    });
-                    const data = await res.json();
-                    alert(`Order created! Order ID: ${data.order_id}. In a real app, integrate Cashfree JS SDK here with this order token.`);
-                } catch (e) {
-                    alert('Error creating order');
+             <button onClick={async () => {
+                const choice = confirm("Unlock EVILGPT PRO: Lifetime access, custom models, and priority processing. Proceed to payment?");                
+                if (choice) {
+                    try {
+                        // Simulating a payment process
+                        const res = await fetch('/api/create-order', {
+                            method: 'POST',
+                            headers: { 'Content-Type': 'application/json' },
+                            body: JSON.stringify({ amount: 100 }),
+                        });
+                        const data = await res.json();
+                        alert(`Proceeding to secure payment for Order ID: ${data.order_id}.`);
+                    } catch (e) {
+                        alert('Subscription service is temporarily unavailable. Please try again later.');
+                    }
                 }
-            }} className="w-full p-3 rounded-xl border border-white/5 text-gray-400 hover:bg-white/5 hover:text-white text-xs font-bold tracking-tighter transition-all uppercase flex items-center gap-3">
-               <div className="w-2 h-2 rounded-full bg-blue-500"></div> Upgrade Plan
+            }} className="w-full p-4 rounded-xl border border-brand-neon bg-brand-neon/10 text-white text-sm font-bold tracking-tighter transition-all uppercase flex items-center justify-between hover:bg-brand-neon/20 hover:scale-[1.02] shadow-[0_0_20px_rgba(0,255,157,0.2)]">
+               <span>Upgrade to PRO</span>
+               <div className="text-[10px] bg-brand-neon text-black px-2 py-0.5 rounded-full uppercase font-black">Limited Time</div>
             </button>
             <button className="w-full p-3 rounded-xl border border-white/5 text-gray-400 hover:bg-white/5 hover:text-white text-xs font-bold tracking-tighter transition-all uppercase flex items-center gap-3">
                <div className="w-2 h-2 rounded-full bg-red-500"></div> Logout
@@ -147,14 +177,13 @@ function MainApp() {
               <span className="text-xl font-black italic tracking-tighter text-white">EVILGPT</span>
             </div>
             <div className="flex items-center gap-2 px-3 py-1 bg-white/5 rounded-full border border-white/10">
-              <span className="text-xs font-bold text-gray-400">MR OFFENSIVE</span>
+              <span className="text-xs font-bold text-gray-400">EVILGPT-MODEL</span>
             </div>
           </div>
           <div className="flex items-center gap-3">
              <div className="flex items-center gap-2 px-3 py-1 bg-brand-neon/10 rounded-full border border-brand-neon/20">
                <span className="text-xs font-bold text-brand-neon">⚡ 1h 45m left</span>
              </div>
-             <Settings onClick={() => navigate('/admin')} className="w-5 h-5 text-brand-neon cursor-pointer hover:bg-white/10 p-1 rounded transition-colors" />
           </div>
         </header>
 
@@ -169,6 +198,7 @@ function MainApp() {
               <div key={i} className={`p-4 rounded-2xl ${m.role === 'user' ? 'bg-white/5 ml-auto text-right' : 'bg-brand-neon/5 mr-auto'} max-w-[90%]`}>
                 <div className="prose prose-invert prose-sm max-w-none">
                   <ReactMarkdown remarkPlugins={[remarkGfm]}>{m.content || (isLoading && i === messages.length -1 ? '...' : '')}</ReactMarkdown>
+                  {isLoading && i === messages.length -1 && <span className="inline-block w-2 h-4 bg-brand-neon animate-pulse ml-1 opacity-50"></span>}
                 </div>
               </div>
             ))

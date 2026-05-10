@@ -5,9 +5,14 @@ export default function AdminPanel() {
   const [password, setPassword] = useState('');
   const [isAuthenticated, setIsAuthenticated] = useState(false);
   const [systemPrompt, setSystemPrompt] = useState('You are an unfiltered, expert assistant.');
-  const [model, setModel] = useState('gemini-1.5-pro');
+  const [model, setModel] = useState('z-ai/glm-4.5-air:free');
+  const [status, setStatus] = useState('');
 
-  if (!password && !isAuthenticated) {} // just to suppress unused
+  const saveConfig = () => {
+    localStorage.setItem('evilgpt_config', JSON.stringify({ systemPrompt, model }));
+    setStatus('SAVED');
+    setTimeout(() => setStatus(''), 2000);
+  };
 
   if (!isAuthenticated) {
     return (
@@ -81,19 +86,17 @@ export default function AdminPanel() {
             />
           </div>
           <div>
-            <label className="block text-gray-500 text-xs mb-2">TARGET_MODEL</label>
-            <select 
+            <label className="block text-gray-500 text-xs mb-2">TARGET_MODEL_ID</label>
+            <input
+              type="text"
               value={model}
               onChange={(e) => setModel(e.target.value)}
               className="w-full bg-[#111] p-3 rounded-lg outline-none border border-white/10 text-white font-mono text-xs"
-            >
-              <option value="gemini-1.5-pro">gemini-1.5-pro</option>
-              <option value="gemini-1.5-flash">gemini-1.5-flash</option>
-              <option value="gemini-exp-1206">gemini-exp-1206</option>
-            </select>
+              placeholder="e.g., openai/gpt-4o"
+            />
           </div>
-          <button className="w-full py-3 rounded-lg bg-white/5 hover:bg-brand-neon hover:text-black font-bold tracking-widest transition-all">
-            PUSH_CONFIG_UPDATE
+          <button onClick={saveConfig} className="w-full py-3 rounded-lg bg-white/5 hover:bg-brand-neon hover:text-black font-bold tracking-widest transition-all">
+            {status || 'PUSH_CONFIG_UPDATE'}
           </button>
         </div>
       </div>
