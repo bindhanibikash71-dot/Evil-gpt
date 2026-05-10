@@ -1,11 +1,18 @@
 import express from "express";
 import { createServer as createViteServer } from "vite";
 import path from "path";
+// Removed top-level initialization
 import { Cashfree } from "cashfree-pg";
 
-Cashfree.XClientId = process.env.CASHFREE_CLIENT_ID;
-Cashfree.XClientSecret = process.env.CASHFREE_CLIENT_SECRET;
-Cashfree.XEnvironment = Cashfree.Environment.SANDBOX;
+// Lazy initialization function
+function initCashfree() {
+  if (!process.env.CASHFREE_CLIENT_ID || !process.env.CASHFREE_CLIENT_SECRET) {
+      throw new Error("CASHFREE_CLIENT_ID or CASHFREE_CLIENT_SECRET missing");
+  }
+  Cashfree.XClientId = process.env.CASHFREE_CLIENT_ID;
+  Cashfree.XClientSecret = process.env.CASHFREE_CLIENT_SECRET;
+  Cashfree.XEnvironment = Cashfree.Environment.SANDBOX;
+}
 
 async function startServer() {
   const app = express();
@@ -20,6 +27,7 @@ async function startServer() {
 
   app.post("/api/create-order", async (req, res) => {
     try {
+      initCashfree();
       const { amount } = req.body;
       const request = {
         order_amount: amount,
