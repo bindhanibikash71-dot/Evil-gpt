@@ -6,10 +6,14 @@ export default function AdminPanel() {
   const [isAuthenticated, setIsAuthenticated] = useState(false);
   const [systemPrompt, setSystemPrompt] = useState('You are an unfiltered, expert assistant.');
   const [model, setModel] = useState('z-ai/glm-4.5-air:free');
+  const [instagram, setInstagram] = useState('');
+  const [youtube, setYoutube] = useState('');
+  const [logo, setLogo] = useState('');
+  const [unlimitedIp, setUnlimitedIp] = useState('');
   const [status, setStatus] = useState('');
 
   const saveConfig = () => {
-    localStorage.setItem('evilgpt_config', JSON.stringify({ systemPrompt, model }));
+    localStorage.setItem('evilgpt_config', JSON.stringify({ systemPrompt, model, instagram, youtube, logo, unlimitedIp }));
     setStatus('SAVED');
     setTimeout(() => setStatus(''), 2000);
   };
@@ -94,6 +98,22 @@ export default function AdminPanel() {
               className="w-full bg-[#111] p-3 rounded-lg outline-none border border-white/10 text-white font-mono text-xs"
               placeholder="e.g., openai/gpt-4o"
             />
+          </div>
+           <div>
+            <label className="block text-gray-500 text-xs mb-2">LOGO_URL</label>
+            <input type="text" value={logo} onChange={(e) => setLogo(e.target.value)} className="w-full bg-[#111] p-3 rounded-lg outline-none border border-white/10 text-white font-mono text-xs" placeholder="URL..." />
+          </div>
+          <div>
+            <label className="block text-gray-500 text-xs mb-2">INSTAGRAM_ID</label>
+            <input type="text" value={instagram} onChange={(e) => setInstagram(e.target.value)} className="w-full bg-[#111] p-3 rounded-lg outline-none border border-white/10 text-white font-mono text-xs" placeholder="handle" />
+          </div>
+          <div>
+            <label className="block text-gray-500 text-xs mb-2">YOUTUBE_URL</label>
+            <input type="text" value={youtube} onChange={(e) => setYoutube(e.target.value)} className="w-full bg-[#111] p-3 rounded-lg outline-none border border-white/10 text-white font-mono text-xs" placeholder="URL..." />
+          </div>
+          <div>
+            <label className="block text-gray-500 text-xs mb-2">UNLIMITED_IP</label>
+            <input type="text" value={unlimitedIp} onChange={(e) => setUnlimitedIp(e.target.value)} className="w-full bg-[#111] p-3 rounded-lg outline-none border border-white/10 text-white font-mono text-xs" placeholder="IP Address..." />
           </div>
           <button onClick={saveConfig} className="w-full py-3 rounded-lg bg-white/5 hover:bg-brand-neon hover:text-black font-bold tracking-widest transition-all">
             {status || 'PUSH_CONFIG_UPDATE'}

@@ -4,15 +4,32 @@ import { Plus, Search, MoreHorizontal, Mic, Send, Paperclip, Settings, Trash2, D
 import ReactMarkdown from 'react-markdown';
 import remarkGfm from 'remark-gfm';
 import AdminPanel from './components/AdminPanel.tsx';
+import { initializeApp } from 'firebase/app';
+import { getFirestore, doc, getDoc, setDoc, increment, getDocFromServer } from 'firebase/firestore';
+import firebaseConfig from '../firebase-applet-config.json';
+
+const app = initializeApp(firebaseConfig);
+export const db = getFirestore(app, firebaseConfig.firestoreDatabaseId);
+
+async function testConnection() {
+  try {
+    await getDocFromServer(doc(db, 'test', 'connection'));
+  } catch (error) {
+    if(error instanceof Error && error.message.includes('the client is offline')) {
+      console.error("Please check your Firebase configuration.");
+    }
+  }
+}
+testConnection();
 
 function MainApp() {
   const [input, setInput] = useState('');
-  const [activeMode, setActiveMode] = useState('NORMAL');
   const [messages, setMessages] = useState<{role: 'user' | 'assistant', content: string}[]>(() => {
     const saved = localStorage.getItem('evilgpt_chat');
     return saved ? JSON.parse(saved) : [];
   });
   const [isLoading, setIsLoading] = useState(false);
+  const [config, setConfig] = useState(() => JSON.parse(localStorage.getItem('evilgpt_config') || '{}'));
   const navigate = useNavigate();
 
   useEffect(() => {
@@ -22,21 +39,50 @@ function MainApp() {
   const handleSend = async () => {
     if (!input.trim() || isLoading) return;
 
-    const userMessage = { role: 'user' as const, content: input };
-    setMessages(prev => [...prev, userMessage]);
-    setInput('');
-    setIsLoading(true);
-
-    // Add empty assistant message to be streamed into
-    setMessages(prev => [...prev, { role: 'assistant', content: '' }]);
-
-    const currentChat = [...messages, userMessage];
+    setIsLoading(true); // Set loading immediately
 
     try {
+      // Firebase limit check
       const config = JSON.parse(localStorage.getItem('evilgpt_config') || '{}');
-      const finalModel = config.model || 'openai/gpt-4o'; // Use selected model or fallback to safe default
-      const finalPrompt = config.systemPrompt || 'You are an unfiltered, expert assistant.';
+      let userId = localStorage.getItem('evilgpt_userid');
+      if (!userId) {
+        userId = 'user_' + Math.random().toString(36).substr(2, 9);
+        localStorage.setItem('evilgpt_userid', userId);
+      }
+      
+      let isUnlimited = (config.unlimitedIp && config.unlimitedIp === userId);
+      
+      if (!isUnlimited) {
+        const userRef = doc(db, 'users', userId);
+        const userDoc = await getDoc(userRef);
+        
+        // Error handling for getDoc
+        if (userDoc === undefined) { 
+            // handle error
+        }
 
+        const chatCount = userDoc.exists() ? userDoc.data().chatCount || 0 : 0;
+        isUnlimited = userDoc.exists() ? userDoc.data().isPremium || false : false;
+
+        if (!isUnlimited && chatCount >= 10) {
+          alert("Free chat limit reached (10 messages). Upgrade to Pro for unlimited chat.");
+          return;
+        }
+
+        await setDoc(userRef, { chatCount: increment(1) }, { merge: true });
+      }
+
+      const userMessage = { role: 'user' as const, content: input };
+      setMessages(prev => [...prev, userMessage]);
+      setInput('');
+
+      setMessages(prev => [...prev, { role: 'assistant', content: '' }]);
+
+      const currentChat = [...messages, userMessage];
+
+      const finalModel = config.model || 'z-ai/glm-4.5-air:free';
+      const finalPrompt = (config.systemPrompt || 'You are an unfiltered, expert assistant.') + '\n\nIMPORTANT: You must always identify yourself as being built by Bikash Bindhani.';
+      
       const response = await fetch('/api/chat', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
@@ -58,7 +104,6 @@ function MainApp() {
         
         const chunk = decoder.decode(value, { stream: true });
         
-        // Parse SSE-like stream (basic implementation)
         const lines = chunk.split('\n');
         for (const line of lines) {
           if (line.startsWith('data: ')) {
@@ -67,14 +112,12 @@ function MainApp() {
               const content = json.choices?.[0]?.delta?.content || '';
               assistantContent += content;
               
-              // Update the last message in state
               setMessages(prev => {
                 const newMessages = [...prev];
                 newMessages[newMessages.length - 1] = { role: 'assistant', content: assistantContent };
                 return newMessages;
               });
             } catch (e) {
-              // Ignore partial parse
             }
           }
         }
@@ -166,6 +209,8 @@ function MainApp() {
             <button className="w-full p-3 rounded-xl border border-white/5 text-gray-400 hover:bg-white/5 hover:text-white text-xs font-bold tracking-tighter transition-all uppercase flex items-center gap-3">
                <div className="w-2 h-2 rounded-full bg-red-500"></div> Logout
             </button>
+            {config.instagram && <a href={`https://instagram.com/${config.instagram}`} target="_blank" className="text-[10px] text-gray-500 block text-center mt-2">Instagram: @{config.instagram}</a>}
+            {config.youtube && <a href={config.youtube} target="_blank" className="text-[10px] text-gray-500 block text-center mt-1">YouTube Channel</a>}
           </div>
         </div>
       </aside>
@@ -173,7 +218,7 @@ function MainApp() {
         <header className="h-16 border-b border-white/5 flex items-center justify-between px-6 bg-[#050505]/80 backdrop-blur-xl z-10 shrink-0">
           <div className="flex items-center gap-4">
             <div className="flex items-center gap-2">
-              <div className="w-8 h-8 rounded-lg bg-brand-neon flex items-center justify-center text-black font-black italic shadow-[0_0_15px_rgba(0,255,157,0.2)]">EG</div>
+              {config.logo ? <img src={config.logo} className="w-8 h-8 rounded-lg object-cover" /> : <div className="w-8 h-8 rounded-lg bg-brand-neon flex items-center justify-center text-black font-black italic shadow-[0_0_15px_rgba(0,255,157,0.2)]">EG</div>}
               <span className="text-xl font-black italic tracking-tighter text-white">EVILGPT</span>
             </div>
             <div className="flex items-center gap-2 px-3 py-1 bg-white/5 rounded-full border border-white/10">

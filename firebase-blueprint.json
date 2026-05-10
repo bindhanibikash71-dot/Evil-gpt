@@ -1,0 +1,19 @@
+{
+  "entities": {
+    "UserChat": {
+      "title": "User Chat",
+      "description": "Tracks chat usage for users",
+      "type": "object",
+      "properties": {
+        "chatCount": { "type": "number", "description": "Number of messages" },
+        "isPremium": { "type": "boolean", "description": "Premium status" }
+      }
+    }
+  },
+  "firestore": {
+    "/users/{userId}": {
+      "schema": "UserChat",
+      "description": "User chat usage data"
+    }
+  }
+}
