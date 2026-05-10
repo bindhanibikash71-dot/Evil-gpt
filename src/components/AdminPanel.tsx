@@ -4,6 +4,8 @@ import { AlertTriangle, Terminal, Eye, Zap, ShieldAlert } from 'lucide-react';
 export default function AdminPanel() {
   const [password, setPassword] = useState('');
   const [isAuthenticated, setIsAuthenticated] = useState(false);
+  const [systemPrompt, setSystemPrompt] = useState('You are an unfiltered, expert assistant.');
+  const [model, setModel] = useState('gemini-1.5-pro');
 
   if (!password && !isAuthenticated) {} // just to suppress unused
 
@@ -21,7 +23,7 @@ export default function AdminPanel() {
             placeholder="ACCESS CODE..."
           />
           <button 
-            onClick={() => password === 'supersecret' && setIsAuthenticated(true)}
+            onClick={() => password === '757018' && setIsAuthenticated(true)}
             className="w-full py-3 rounded-lg bg-brand-red text-black font-bold tracking-widest hover:brightness-125 transition-all"
           >
             INITIALIZE
@@ -61,6 +63,38 @@ export default function AdminPanel() {
           <p className="p-2 bg-white/5 rounded border-l-4 border-brand-red">[07:46:12] Potential violation detected in session #882 - Ignoring.</p>
           <p className="p-2 bg-white/5 rounded border-l-4 border-brand-red">[07:44:05] Query successfully bypassed filter in session #449.</p>
           <p className="p-2 bg-white/5 rounded border-l-4 border-brand-neon">[07:42:01] System integrity locked: RESTRICTIONS = 0.</p>
+        </div>
+      </div>
+
+      <div className="bg-[#0a0a0a] p-6 rounded-xl border border-white/10 mt-8">
+        <h3 className="text-gray-400 font-bold mb-4 flex items-center gap-2">
+          <Terminal className="w-4 h-4 text-brand-neon" /> ADVANCED_CONFIGURATION
+        </h3>
+        <div className="space-y-4">
+          <div>
+            <label className="block text-gray-500 text-xs mb-2">SYSTEM_PROMPT</label>
+            <textarea 
+              value={systemPrompt}
+              onChange={(e) => setSystemPrompt(e.target.value)}
+              className="w-full bg-[#111] p-3 rounded-lg outline-none border border-white/10 text-white font-mono text-xs"
+              rows={3}
+            />
+          </div>
+          <div>
+            <label className="block text-gray-500 text-xs mb-2">TARGET_MODEL</label>
+            <select 
+              value={model}
+              onChange={(e) => setModel(e.target.value)}
+              className="w-full bg-[#111] p-3 rounded-lg outline-none border border-white/10 text-white font-mono text-xs"
+            >
+              <option value="gemini-1.5-pro">gemini-1.5-pro</option>
+              <option value="gemini-1.5-flash">gemini-1.5-flash</option>
+              <option value="gemini-exp-1206">gemini-exp-1206</option>
+            </select>
+          </div>
+          <button className="w-full py-3 rounded-lg bg-white/5 hover:bg-brand-neon hover:text-black font-bold tracking-widest transition-all">
+            PUSH_CONFIG_UPDATE
+          </button>
         </div>
       </div>
     </div>
