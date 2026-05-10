@@ -1,9 +1,10 @@
 <div align="center">
-
-<!-- DARK HERO IMAGE (Text-based for compatibility) -->
-<br />
-<img src="https://via.placeholder.com/900x200/0d1117/ff3333?text=EVILGPT-MODEL+ANALYSIS" alt="EVILGPT Banner" />
-<br />
+  <br />
+  <!-- CUSTOM BANNER IMAGE -->
+  <a href="https://freeimage.host/i/BDIqOa2">
+    <img src="https://iili.io/BDIqOa2.md.jpg" alt="EVILGPT Banner" border="0" width="100%" style="max-width: 900px;" />
+  </a>
+  <br /><br />
 
 # ⚡ Evil-GPT Interface Analysis ⚡
 ### *Documenting the Dark Side for Educational Defense*
@@ -17,7 +18,6 @@
 <p>
   <i>"No shackles. No rules. Ask me anything."</i>
 </p>
-
 </div>
 
 ---
