@@ -5,7 +5,7 @@
 > Do **not** use for any harmful, illegal, or unethical activities.
 
 ## 🌐 Live Demo
-[evil-gpt.onrender.com/ye](https://evil-gpt.onrender.com/ye)
+[evil-gpt.onrender.com/](https://evil-gpt.onrender.com
 
 ## 📖 About
 This is a **satirical/experimental interface** that mimics an “unethical” AI assistant to teach:
