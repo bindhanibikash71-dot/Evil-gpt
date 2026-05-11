@@ -255,7 +255,7 @@ function MainApp() {
         </header>
           
           {/* Mobile Only: Premium Buttons */}
-          <div className="md:hidden p-4 space-y-2">
+          <div className="md:hidden absolute top-16 left-0 w-full p-4 space-y-2 bg-[#050505]/95 backdrop-blur z-20 shadow-lg">
             <button onClick={async () => {
                 const choice = confirm("Unlock 2 Hours access for 10 Rs? Proceed?");                
                 if (choice) {
