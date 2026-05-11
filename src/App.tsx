@@ -30,12 +30,33 @@ function MainApp() {
   });
   const [isLoading, setIsLoading] = useState(false);
   const [config, setConfig] = useState(() => JSON.parse(localStorage.getItem('evilgpt_config') || '{}'));
+  const [dailyChatCount, setDailyChatCount] = useState(0);
   const [isSidebarOpen, setIsSidebarOpen] = useState(false);
   const navigate = useNavigate();
 
   useEffect(() => {
     localStorage.setItem('evilgpt_chat', JSON.stringify(messages));
   }, [messages]);
+
+  useEffect(() => {
+    const fetchChatCount = async () => {
+      let userId = localStorage.getItem('evilgpt_userid');
+      if (userId) {
+        const userRef = doc(db, 'users', userId);
+        const userDoc = await getDoc(userRef);
+        if (userDoc.exists()) {
+          const data = userDoc.data();
+          const today = new Date().toDateString();
+          if (data.lastChatDate === today) {
+            setDailyChatCount(data.chatCount || 0);
+          } else {
+            setDailyChatCount(0);
+          }
+        }
+      }
+    };
+    fetchChatCount();
+  }, []);
 
   const toggleSidebar = () => setIsSidebarOpen(!isSidebarOpen);
 
@@ -65,22 +86,26 @@ function MainApp() {
         }
 
         const chatCount = userDoc.exists() ? userDoc.data().chatCount || 0 : 0;
+        const lastChatDate = userDoc.exists() ? userDoc.data().lastChatDate || '' : '';
+        const today = new Date().toDateString();
+        
+        let dailyCount = (lastChatDate === today) ? chatCount : 0;
         isUnlimited = userDoc.exists() ? userDoc.data().isPremium || false : false;
 
-        if (!isUnlimited && chatCount >= 10) {
-          alert("Free chat limit reached (10 messages). Upgrade to Pro for unlimited chat.");
+        if (!isUnlimited && dailyCount >= 100) {
+          alert("Daily chat limit reached (100 messages). Upgrade to Pro for unlimited chat.");
           return;
         }
 
-        await setDoc(userRef, { chatCount: increment(1) }, { merge: true });
+        await setDoc(userRef, { chatCount: dailyCount + 1, lastChatDate: today }, { merge: true });
+        setDailyChatCount(dailyCount + 1);
       }
 
       const userMessage = { role: 'user' as const, content: input };
       setMessages(prev => [...prev, userMessage]);
       setInput('');
-
       setMessages(prev => [...prev, { role: 'assistant', content: '' }]);
-
+      
       const currentChat = [...messages, userMessage];
 
       const finalModel = config.model || 'z-ai/glm-4.5-air:free';
@@ -172,6 +197,7 @@ function MainApp() {
           
           {/* Premium Panel - Sidebar */}
           <div className="space-y-2 pt-4 border-t border-white/5">
+             <div className="px-2 text-[10px] text-gray-500 font-bold uppercase">Daily Messages: {dailyChatCount} / 100</div>
              <button onClick={() => alert("Payment logic...")} className="w-full p-4 rounded-xl border border-brand-neon/30 bg-brand-neon/5 text-white text-sm font-bold tracking-tight hover:bg-brand-neon/10 transition-all flex items-center justify-between">
                 <span>10 Rs / 2hrs</span>
                 <span className="text-[9px] bg-brand-neon text-black px-1.5 py-0.5 rounded">LIMIT</span>
