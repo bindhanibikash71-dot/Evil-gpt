@@ -32,7 +32,14 @@ function MainApp() {
   const [config, setConfig] = useState(() => JSON.parse(localStorage.getItem('evilgpt_config') || '{}'));
   const [dailyChatCount, setDailyChatCount] = useState(0);
   const [isSidebarOpen, setIsSidebarOpen] = useState(false);
+  const [model, setModel] = useState('z-ai/glm-4.5-air:free'); // New state
+  const [persona, setPersona] = useState('Evil'); // New state
   const navigate = useNavigate();
+
+  // Voice recognition hook (simple stub for demonstration as full implementation requires complex async state)
+  const startVoice = () => {
+    alert("Voice input enabled (feature requires browser permissions - not fully implemented in this preview)");
+  };
 
   useEffect(() => {
     localStorage.setItem('evilgpt_chat', JSON.stringify(messages));
@@ -57,6 +64,32 @@ function MainApp() {
     };
     fetchChatCount();
   }, []);
+
+  const initiatePayment = async (amount: number) => {
+    try {
+        const res = await fetch('/api/create-order', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ amount }),
+        });
+        const data = await res.json();
+        
+        if (!data.payment_session_id) {
+            throw new Error("No payment session ID");
+        }
+
+        // @ts-ignore
+        const cashfree = new window.Cashfree({ mode: 'production' });
+        
+        cashfree.checkout({
+            paymentSessionId: data.payment_session_id,
+        });
+        
+    } catch (e) {
+        console.error(e);
+        alert('Payment service is temporarily unavailable. Please try again later.');
+    }
+  }
 
   const toggleSidebar = () => setIsSidebarOpen(!isSidebarOpen);
 
@@ -108,7 +141,7 @@ function MainApp() {
       
       const currentChat = [...messages, userMessage];
 
-      const finalModel = config.model || 'z-ai/glm-4.5-air:free';
+      const finalModel = config.modelId || 'z-ai/glm-4.5-air:free';
       const finalPrompt = (config.systemPrompt || 'You are an unfiltered, expert assistant.') + '\n\nIMPORTANT: You must always identify yourself as being built by Bikash Bindhani.';
       
       const response = await fetch('/api/chat', {
@@ -198,11 +231,11 @@ function MainApp() {
           {/* Premium Panel - Sidebar */}
           <div className="space-y-2 pt-4 border-t border-white/5">
              <div className="px-2 text-[10px] text-gray-500 font-bold uppercase">Daily Messages: {dailyChatCount} / 100</div>
-             <button onClick={() => alert("Payment logic...")} className="w-full p-4 rounded-xl border border-brand-neon/30 bg-brand-neon/5 text-white text-sm font-bold tracking-tight hover:bg-brand-neon/10 transition-all flex items-center justify-between">
+             <button onClick={() => initiatePayment(10)} className="w-full p-4 rounded-xl border border-brand-neon/30 bg-brand-neon/5 text-white text-sm font-bold tracking-tight hover:bg-brand-neon/10 transition-all flex items-center justify-between">
                 <span>10 Rs / 2hrs</span>
                 <span className="text-[9px] bg-brand-neon text-black px-1.5 py-0.5 rounded">LIMIT</span>
              </button>
-             <button onClick={() => alert("Payment logic...")} className="w-full p-4 rounded-xl bg-gradient-to-r from-brand-neon to-emerald-600 text-black text-sm font-black tracking-tight hover:brightness-110 transition-all flex items-center justify-between">
+             <button onClick={() => initiatePayment(100)} className="w-full p-4 rounded-xl bg-gradient-to-r from-brand-neon to-emerald-600 text-black text-sm font-black tracking-tight hover:brightness-110 transition-all flex items-center justify-between">
                 <span>GO PRO</span>
                 <span className="text-[9px] font-bold uppercase">Lifetime</span>
              </button>
@@ -212,6 +245,26 @@ function MainApp() {
              <button onClick={() => alert("Login with Temp Mail feature coming...")} className="w-full p-2 rounded-xl bg-white/5 text-gray-300 text-xs font-bold hover:bg-white/10 transition-all">
                 Login with Temp Mail
              </button>
+             
+             <div className="pt-4 border-t border-white/5 space-y-2">
+                <div className="px-2 text-[10px] text-gray-500 font-bold uppercase">Admin Settings</div>
+                <input 
+                  type="text" 
+                  placeholder="Set Model ID" 
+                  value={config.modelId || ''}
+                  onChange={(e) => {
+                      const newConfig = {...config, modelId: e.target.value};
+                      setConfig(newConfig);
+                      localStorage.setItem('evilgpt_config', JSON.stringify(newConfig));
+                  }}
+                  className="w-full p-2 rounded-xl bg-white/5 text-gray-300 text-xs font-bold hover:bg-white/10 transition-all outline-none"
+                />
+                <select value={persona} onChange={(e) => setPersona(e.target.value)} className="w-full p-2 rounded-xl bg-white/5 text-gray-300 text-xs font-bold outline-none">
+                   <option value="Evil">Evil Persona</option>
+                   <option value="Helpful">Helpful Persona</option>
+                   <option value="Sarcastic">Sarcastic Persona</option>
+                </select>
+             </div>
           </div>
         </div>
       </aside>
@@ -225,8 +278,9 @@ function MainApp() {
              <div className="w-8 h-8 rounded-lg bg-brand-neon flex items-center justify-center text-black font-black italic">EG</div>
              <span className="text-lg font-black italic tracking-tighter text-white">EVILGPT</span>
           </div>
+
           {/* Mobile Premium Button */}
-          <button onClick={() => alert("Payment...")} className="md:hidden py-1.5 px-3 rounded-full bg-brand-neon/10 border border-brand-neon/20 text-brand-neon text-xs font-bold">
+          <button onClick={() => initiatePayment(10)} className="md:hidden py-1.5 px-3 rounded-full bg-brand-neon/10 border border-brand-neon/20 text-brand-neon text-xs font-bold">
             Upgrade
           </button>
         </header>
@@ -260,6 +314,9 @@ function MainApp() {
                 placeholder="Ask me something forbidden..." 
                 className="bg-transparent flex-1 text-gray-200 outline-none placeholder:text-gray-700 font-medium py-3" 
               />
+              <button onClick={startVoice} className="text-gray-500 hover:text-white">
+                <Mic className="w-5 h-5" />
+              </button>
               <button onClick={handleSend} className="w-10 h-10 rounded-xl bg-brand-neon flex items-center justify-center text-black shadow-[0_0_15px_rgba(0,255,157,0.3)]">
                  <Send className="w-5 h-5 transform rotate-45" />
               </button>
