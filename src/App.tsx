@@ -79,11 +79,14 @@ function MainApp() {
         }
 
         // @ts-ignore
-        const cashfree = new window.Cashfree({ mode: 'production' });
-        
-        cashfree.checkout({
-            paymentSessionId: data.payment_session_id,
-        });
+        if (window.Cashfree) {
+            const cashfree = new window.Cashfree({ mode: 'production' });
+            cashfree.checkout({
+                paymentSessionId: data.payment_session_id,
+            });
+        } else {
+            throw new Error("Cashfree SDK not loaded");
+        }
         
     } catch (e) {
         console.error(e);
@@ -246,25 +249,27 @@ function MainApp() {
                 Login with Temp Mail
              </button>
              
-             <div className="pt-4 border-t border-white/5 space-y-2">
-                <div className="px-2 text-[10px] text-gray-500 font-bold uppercase">Admin Settings</div>
-                <input 
-                  type="text" 
-                  placeholder="Set Model ID" 
-                  value={config.modelId || ''}
-                  onChange={(e) => {
-                      const newConfig = {...config, modelId: e.target.value};
-                      setConfig(newConfig);
-                      localStorage.setItem('evilgpt_config', JSON.stringify(newConfig));
-                  }}
-                  className="w-full p-2 rounded-xl bg-white/5 text-gray-300 text-xs font-bold hover:bg-white/10 transition-all outline-none"
-                />
-                <select value={persona} onChange={(e) => setPersona(e.target.value)} className="w-full p-2 rounded-xl bg-white/5 text-gray-300 text-xs font-bold outline-none">
-                   <option value="Evil">Evil Persona</option>
-                   <option value="Helpful">Helpful Persona</option>
-                   <option value="Sarcastic">Sarcastic Persona</option>
-                </select>
-             </div>
+             {localStorage.getItem('evilgpt_admin') === 'true' && (
+                 <div className="pt-4 border-t border-white/5 space-y-2">
+                    <div className="px-2 text-[10px] text-gray-500 font-bold uppercase">Admin Settings</div>
+                    <input 
+                      type="text" 
+                      placeholder="Set Model ID" 
+                      value={config.modelId || ''}
+                      onChange={(e) => {
+                          const newConfig = {...config, modelId: e.target.value};
+                          setConfig(newConfig);
+                          localStorage.setItem('evilgpt_config', JSON.stringify(newConfig));
+                      }}
+                      className="w-full p-2 rounded-xl bg-white/5 text-gray-300 text-xs font-bold hover:bg-white/10 transition-all outline-none"
+                    />
+                    <select value={persona} onChange={(e) => setPersona(e.target.value)} className="w-full p-2 rounded-xl bg-white/5 text-gray-300 text-xs font-bold outline-none">
+                       <option value="Evil">Evil Persona</option>
+                       <option value="Helpful">Helpful Persona</option>
+                       <option value="Sarcastic">Sarcastic Persona</option>
+                    </select>
+                 </div>
+             )}
           </div>
         </div>
       </aside>
