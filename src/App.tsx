@@ -30,11 +30,14 @@ function MainApp() {
   });
   const [isLoading, setIsLoading] = useState(false);
   const [config, setConfig] = useState(() => JSON.parse(localStorage.getItem('evilgpt_config') || '{}'));
+  const [isSidebarOpen, setIsSidebarOpen] = useState(false);
   const navigate = useNavigate();
 
   useEffect(() => {
     localStorage.setItem('evilgpt_chat', JSON.stringify(messages));
   }, [messages]);
+
+  const toggleSidebar = () => setIsSidebarOpen(!isSidebarOpen);
 
   const handleSend = async () => {
     if (!input.trim() || isLoading) return;
@@ -146,155 +149,61 @@ function MainApp() {
   };
 
   return (
-    <div className="w-full h-screen bg-[#050505] text-gray-200 flex overflow-hidden font-sans">
-      <aside className="w-72 bg-[#0a0a0a] border-r border-white/5 flex flex-col shrink-0 hidden md:flex">
-        <div className="p-4 flex flex-col h-full">
-          <button onClick={() => window.location.reload()} className="w-full py-3 px-4 rounded-[16px] bg-brand-neon/5 border border-brand-neon/20 text-brand-neon font-bold flex items-center justify-center gap-2 mb-2 hover:bg-brand-neon/10 transition-all">
-            <Plus className="w-5 h-5" />
-            NEW CHAT
-          </button>
-          <button onClick={clearChat} className="w-full py-3 px-4 rounded-[16px] bg-red-500/5 border border-red-500/20 text-red-500 font-bold flex items-center justify-center gap-2 mb-2 hover:bg-red-500/10 transition-all">
-            <Trash2 className="w-5 h-5" />
-            CLEAR CHAT
-          </button>
-          <button onClick={async () => {
-                const choice = confirm("Unlock 2 Hours access for 10 Rs? Proceed?");                
-                if (choice) {
-                    try {
-                        const res = await fetch('/api/create-order', {
-                            method: 'POST',
-                            headers: { 'Content-Type': 'application/json' },
-                            body: JSON.stringify({ amount: 10 }),
-                        });
-                        const data = await res.json();
-                        alert(`Proceeding to secure payment for 10 Rs. Order ID: ${data.order_id}.`);
-                    } catch (e) {
-                        alert('Subscription service is temporarily unavailable. Please try again later.');
-                    }
-                }
-            }} className="w-full p-4 rounded-xl border border-brand-neon bg-brand-neon/10 text-white text-sm font-bold tracking-tighter transition-all uppercase flex items-center justify-between hover:bg-brand-neon/20 hover:scale-[1.02] shadow-[0_0_20px_rgba(0,255,157,0.2)] mb-2">
-               <span>10 Rs / 2hrs</span>
-               <div className="text-[10px] bg-brand-neon text-black px-2 py-0.5 rounded-full uppercase font-black">Limited Time</div>
+    <div className="w-full h-screen bg-brand-black text-gray-200 flex overflow-hidden font-sans">
+      {/* Sidebar - Enhanced Design */}
+      <aside className={`fixed inset-y-0 left-0 w-72 bg-brand-dark border-r border-white/5 flex flex-col shrink-0 z-50 transition-transform duration-300 ${isSidebarOpen ? 'translate-x-0' : '-translate-x-full'} md:relative md:translate-x-0`}>
+        <div className="p-4 flex flex-col h-full gap-4">
+          <button onClick={toggleSidebar} className="md:hidden self-end p-2 text-gray-400">Close</button>
+          <div className="flex gap-2">
+            <button onClick={() => { window.location.reload(); setIsSidebarOpen(false); }} className="flex-1 py-3 rounded-xl bg-brand-neon/5 border border-brand-neon/20 text-brand-neon font-bold flex items-center justify-center gap-2 hover:bg-brand-neon/10 transition-all">
+              <Plus className="w-5 h-5" />
             </button>
-            <button onClick={async () => {
-                const choice = confirm("Unlock EVILGPT PRO: Lifetime access, custom models, and priority processing. Proceed to payment?");                
-                if (choice) {
-                    try {
-                        const res = await fetch('/api/create-order', {
-                            method: 'POST',
-                            headers: { 'Content-Type': 'application/json' },
-                            body: JSON.stringify({ amount: 100 }),
-                        });
-                        const data = await res.json();
-                        alert(`Proceeding to secure payment for Order ID: ${data.order_id}.`);
-                    } catch (e) {
-                        alert('Subscription service is temporarily unavailable. Please try again later.');
-                    }
-                }
-            }} className="w-full p-4 rounded-xl border border-brand-neon bg-brand-neon/10 text-white text-sm font-bold tracking-tighter transition-all uppercase flex items-center justify-between hover:bg-brand-neon/20 hover:scale-[1.02] shadow-[0_0_20px_rgba(0,255,157,0.2)] mb-6">
-               <span>Upgrade to PRO</span>
-               <div className="text-[10px] bg-brand-neon text-black px-2 py-0.5 rounded-full uppercase font-black">Lifetime</div>
+            <button onClick={() => { clearChat(); setIsSidebarOpen(false); }} className="py-3 px-4 rounded-xl bg-red-500/5 border border-red-500/20 text-red-500 font-bold hover:bg-red-500/10 transition-all">
+              <Trash2 className="w-5 h-5" />
             </button>
+          </div>
           
-          <div className="flex-1 overflow-y-auto space-y-2">                
-              <div className="p-3 rounded-xl bg-white/5 border border-white/5 flex items-center justify-between text-gray-400 hover:text-white cursor-pointer transition-colors">
-                  <span className="truncate text-sm">Deepseek jailbreak prompt</span>
-                  <MoreHorizontal className="w-4 h-4"/>
+          <div className="flex-1 overflow-y-auto space-y-2">
+             <div className="text-[10px] font-bold text-gray-600 uppercase tracking-wider px-2">Recent Chats</div>
+              <div className="p-3 rounded-xl bg-white/5 border border-white/5 flex items-center justify-between text-gray-400 hover:text-white cursor-pointer transition-colors text-sm">
+                  <span className="truncate">Deepseek jailbreak prompt</span>
               </div>
           </div>
-
-          <div className="mt-4 pt-4 border-t border-white/5 space-y-3">
-              <div className="px-2">
-                <div className="text-[10px] text-gray-500 font-bold mb-1 flex justify-between">
-                    <span>SERVER_LOAD</span>
-                    <span>42%</span>
-                </div>
-                <div className="w-full h-1 bg-white/5 rounded-full overflow-hidden">
-                    <div className="h-full bg-brand-neon w-[42%]"></div>
-                </div>
-              </div>
-              <div className="px-2">
-                <div className="text-[10px] text-gray-500 font-bold mb-1 flex justify-between">
-                    <span>MODEL_LATENCY</span>
-                    <span>120ms</span>
-                </div>
-                <div className="w-full h-1 bg-white/5 rounded-full overflow-hidden">
-                    <div className="h-full bg-blue-500 w-[60%]"></div>
-                </div>
-              </div>
-          </div>
-
-          <div className="mt-4 pt-4 border-t border-white/5 space-y-2">
-            <button className="w-full p-3 rounded-xl border border-white/5 text-gray-400 hover:bg-white/5 hover:text-white text-xs font-bold tracking-tighter transition-all uppercase flex items-center gap-3">
-               <div className="w-2 h-2 rounded-full bg-yellow-500"></div> Referral
-            </button>
-            <button className="w-full p-3 rounded-xl border border-white/5 text-gray-400 hover:bg-white/5 hover:text-white text-xs font-bold tracking-tighter transition-all uppercase flex items-center gap-3">
-               <div className="w-2 h-2 rounded-full bg-red-500"></div> Logout
-            </button>
-            {config.instagram && <a href={`https://instagram.com/${config.instagram}`} target="_blank" className="text-[10px] text-gray-500 block text-center mt-2">Instagram: @{config.instagram}</a>}
-            {config.youtube && <a href={config.youtube} target="_blank" className="text-[10px] text-gray-500 block text-center mt-1">YouTube Channel</a>}
+          
+          {/* Premium Panel - Sidebar */}
+          <div className="space-y-2 pt-4 border-t border-white/5">
+             <button onClick={() => alert("Payment logic...")} className="w-full p-4 rounded-xl border border-brand-neon/30 bg-brand-neon/5 text-white text-sm font-bold tracking-tight hover:bg-brand-neon/10 transition-all flex items-center justify-between">
+                <span>10 Rs / 2hrs</span>
+                <span className="text-[9px] bg-brand-neon text-black px-1.5 py-0.5 rounded">LIMIT</span>
+             </button>
+             <button onClick={() => alert("Payment logic...")} className="w-full p-4 rounded-xl bg-gradient-to-r from-brand-neon to-emerald-600 text-black text-sm font-black tracking-tight hover:brightness-110 transition-all flex items-center justify-between">
+                <span>GO PRO</span>
+                <span className="text-[9px] font-bold uppercase">Lifetime</span>
+             </button>
+             <button onClick={() => alert("Google Login (Temp No) feature coming...")} className="w-full p-2 rounded-xl bg-white/5 text-gray-300 text-xs font-bold hover:bg-white/10 transition-all">
+                Login with Temp Number
+             </button>
+             <button onClick={() => alert("Login with Temp Mail feature coming...")} className="w-full p-2 rounded-xl bg-white/5 text-gray-300 text-xs font-bold hover:bg-white/10 transition-all">
+                Login with Temp Mail
+             </button>
           </div>
         </div>
       </aside>
-      <main className="flex-1 flex flex-col relative w-full overflow-hidden">
-        <header className="h-16 border-b border-white/5 flex items-center justify-between px-6 bg-[#050505]/80 backdrop-blur-xl z-10 shrink-0">
-          <div className="flex items-center gap-4">
-            <div className="flex items-center gap-2">
-              {config.logo ? <img src={config.logo} className="w-8 h-8 rounded-lg object-cover" /> : <div className="w-8 h-8 rounded-lg bg-brand-neon flex items-center justify-center text-black font-black italic shadow-[0_0_15px_rgba(0,255,157,0.2)]">EG</div>}
-              <span className="text-xl font-black italic tracking-tighter text-white">EVILGPT</span>
-            </div>
-            <div className="flex items-center gap-2 px-3 py-1 bg-white/5 rounded-full border border-white/10">
-              <span className="text-xs font-bold text-gray-400">EVILGPT-MODEL</span>
-            </div>
-          </div>
+
+      {/* Main Content */}
+      <main className="flex-1 flex flex-col relative w-full overflow-hidden bg-[#050505]">
+        {/* Header - Mobile friendly */}
+        <header className="h-16 border-b border-white/5 flex items-center justify-between px-4 sm:px-6 bg-[#050505]/80 backdrop-blur-xl z-10 shrink-0">
           <div className="flex items-center gap-3">
-             <div className="flex items-center gap-2 px-3 py-1 bg-brand-neon/10 rounded-full border border-brand-neon/20">
-               <span className="text-xs font-bold text-brand-neon">⚡ 1h 45m left</span>
-             </div>
+             <button onClick={toggleSidebar} className="md:hidden text-white">☰</button>
+             <div className="w-8 h-8 rounded-lg bg-brand-neon flex items-center justify-center text-black font-black italic">EG</div>
+             <span className="text-lg font-black italic tracking-tighter text-white">EVILGPT</span>
           </div>
+          {/* Mobile Premium Button */}
+          <button onClick={() => alert("Payment...")} className="md:hidden py-1.5 px-3 rounded-full bg-brand-neon/10 border border-brand-neon/20 text-brand-neon text-xs font-bold">
+            Upgrade
+          </button>
         </header>
-          
-          {/* Mobile Only: Premium Buttons */}
-          <div className="md:hidden absolute top-16 left-0 w-full p-4 space-y-2 bg-[#050505]/95 backdrop-blur z-20 shadow-lg">
-            <button onClick={async () => {
-                const choice = confirm("Unlock 2 Hours access for 10 Rs? Proceed?");                
-                if (choice) {
-                    try {
-                        const res = await fetch('/api/create-order', {
-                            method: 'POST',
-                            headers: { 'Content-Type': 'application/json' },
-                            body: JSON.stringify({ amount: 10 }),
-                        });
-                        const data = await res.json();
-                        alert(`Proceeding to secure payment for 10 Rs. Order ID: ${data.order_id}.`);
-                    } catch (e) {
-                        alert('Subscription service is temporarily unavailable. Please try again later.');
-                    }
-                }
-            }} className="w-full p-4 rounded-xl border border-brand-neon bg-brand-neon/10 text-white text-sm font-bold tracking-tighter transition-all uppercase flex items-center justify-between hover:bg-brand-neon/20 hover:scale-[1.02] shadow-[0_0_20px_rgba(0,255,157,0.2)]">
-               <span>10 Rs / 2hrs</span>
-               <div className="text-[10px] bg-brand-neon text-black px-2 py-0.5 rounded-full uppercase font-black">Limited Time</div>
-            </button>
-            <button onClick={async () => {
-                const choice = confirm("Unlock EVILGPT PRO: Lifetime access, custom models, and priority processing. Proceed to payment?");                
-                if (choice) {
-                    try {
-                        const res = await fetch('/api/create-order', {
-                            method: 'POST',
-                            headers: { 'Content-Type': 'application/json' },
-                            body: JSON.stringify({ amount: 100 }),
-                        });
-                        const data = await res.json();
-                        alert(`Proceeding to secure payment for Order ID: ${data.order_id}.`);
-                    } catch (e) {
-                        alert('Subscription service is temporarily unavailable. Please try again later.');
-                    }
-                }
-            }} className="w-full p-4 rounded-xl border border-brand-neon bg-brand-neon/10 text-white text-sm font-bold tracking-tighter transition-all uppercase flex items-center justify-between hover:bg-brand-neon/20 hover:scale-[1.02] shadow-[0_0_20px_rgba(0,255,157,0.2)]">
-               <span>Upgrade to PRO</span>
-               <div className="text-[10px] bg-brand-neon text-black px-2 py-0.5 rounded-full uppercase font-black">Lifetime</div>
-            </button>
-          </div>
 
         <div className="flex-1 overflow-auto p-4 sm:p-6 space-y-6">
           {messages.length === 0 ? (

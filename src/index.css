@@ -3,7 +3,8 @@
 @theme {
   --color-brand-neon: #00ff9d;
   --color-brand-red: #ff3b30;
-  --color-brand-black: #000000;
+  --color-brand-black: #050505;
+  --color-brand-dark: #0a0a0a;
   --color-brand-glass: rgba(255, 255, 255, 0.05);
 
   --font-sans: "Inter", ui-sans-serif, system-ui, sans-serif;
