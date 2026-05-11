@@ -149,10 +149,52 @@ function MainApp() {
     <div className="w-full h-screen bg-[#050505] text-gray-200 flex overflow-hidden font-sans">
       <aside className="w-72 bg-[#0a0a0a] border-r border-white/5 flex flex-col shrink-0 hidden md:flex">
         <div className="p-4 flex flex-col h-full">
-          <button onClick={() => window.location.reload()} className="w-full py-3 px-4 rounded-[16px] bg-brand-neon/5 border border-brand-neon/20 text-brand-neon font-bold flex items-center justify-center gap-2 mb-6 hover:bg-brand-neon/10 transition-all">
+          <button onClick={() => window.location.reload()} className="w-full py-3 px-4 rounded-[16px] bg-brand-neon/5 border border-brand-neon/20 text-brand-neon font-bold flex items-center justify-center gap-2 mb-2 hover:bg-brand-neon/10 transition-all">
             <Plus className="w-5 h-5" />
             NEW CHAT
           </button>
+          <button onClick={clearChat} className="w-full py-3 px-4 rounded-[16px] bg-red-500/5 border border-red-500/20 text-red-500 font-bold flex items-center justify-center gap-2 mb-2 hover:bg-red-500/10 transition-all">
+            <Trash2 className="w-5 h-5" />
+            CLEAR CHAT
+          </button>
+          <button onClick={async () => {
+                const choice = confirm("Unlock 2 Hours access for 10 Rs? Proceed?");                
+                if (choice) {
+                    try {
+                        const res = await fetch('/api/create-order', {
+                            method: 'POST',
+                            headers: { 'Content-Type': 'application/json' },
+                            body: JSON.stringify({ amount: 10 }),
+                        });
+                        const data = await res.json();
+                        alert(`Proceeding to secure payment for 10 Rs. Order ID: ${data.order_id}.`);
+                    } catch (e) {
+                        alert('Subscription service is temporarily unavailable. Please try again later.');
+                    }
+                }
+            }} className="w-full p-4 rounded-xl border border-brand-neon bg-brand-neon/10 text-white text-sm font-bold tracking-tighter transition-all uppercase flex items-center justify-between hover:bg-brand-neon/20 hover:scale-[1.02] shadow-[0_0_20px_rgba(0,255,157,0.2)] mb-2">
+               <span>10 Rs / 2hrs</span>
+               <div className="text-[10px] bg-brand-neon text-black px-2 py-0.5 rounded-full uppercase font-black">Limited Time</div>
+            </button>
+            <button onClick={async () => {
+                const choice = confirm("Unlock EVILGPT PRO: Lifetime access, custom models, and priority processing. Proceed to payment?");                
+                if (choice) {
+                    try {
+                        const res = await fetch('/api/create-order', {
+                            method: 'POST',
+                            headers: { 'Content-Type': 'application/json' },
+                            body: JSON.stringify({ amount: 100 }),
+                        });
+                        const data = await res.json();
+                        alert(`Proceeding to secure payment for Order ID: ${data.order_id}.`);
+                    } catch (e) {
+                        alert('Subscription service is temporarily unavailable. Please try again later.');
+                    }
+                }
+            }} className="w-full p-4 rounded-xl border border-brand-neon bg-brand-neon/10 text-white text-sm font-bold tracking-tighter transition-all uppercase flex items-center justify-between hover:bg-brand-neon/20 hover:scale-[1.02] shadow-[0_0_20px_rgba(0,255,157,0.2)] mb-6">
+               <span>Upgrade to PRO</span>
+               <div className="text-[10px] bg-brand-neon text-black px-2 py-0.5 rounded-full uppercase font-black">Lifetime</div>
+            </button>
           
           <div className="flex-1 overflow-y-auto space-y-2">                
               <div className="p-3 rounded-xl bg-white/5 border border-white/5 flex items-center justify-between text-gray-400 hover:text-white cursor-pointer transition-colors">
@@ -186,26 +228,6 @@ function MainApp() {
             <button className="w-full p-3 rounded-xl border border-white/5 text-gray-400 hover:bg-white/5 hover:text-white text-xs font-bold tracking-tighter transition-all uppercase flex items-center gap-3">
                <div className="w-2 h-2 rounded-full bg-yellow-500"></div> Referral
             </button>
-             <button onClick={async () => {
-                const choice = confirm("Unlock EVILGPT PRO: Lifetime access, custom models, and priority processing. Proceed to payment?");                
-                if (choice) {
-                    try {
-                        // Simulating a payment process
-                        const res = await fetch('/api/create-order', {
-                            method: 'POST',
-                            headers: { 'Content-Type': 'application/json' },
-                            body: JSON.stringify({ amount: 100 }),
-                        });
-                        const data = await res.json();
-                        alert(`Proceeding to secure payment for Order ID: ${data.order_id}.`);
-                    } catch (e) {
-                        alert('Subscription service is temporarily unavailable. Please try again later.');
-                    }
-                }
-            }} className="w-full p-4 rounded-xl border border-brand-neon bg-brand-neon/10 text-white text-sm font-bold tracking-tighter transition-all uppercase flex items-center justify-between hover:bg-brand-neon/20 hover:scale-[1.02] shadow-[0_0_20px_rgba(0,255,157,0.2)]">
-               <span>Upgrade to PRO</span>
-               <div className="text-[10px] bg-brand-neon text-black px-2 py-0.5 rounded-full uppercase font-black">Limited Time</div>
-            </button>
             <button className="w-full p-3 rounded-xl border border-white/5 text-gray-400 hover:bg-white/5 hover:text-white text-xs font-bold tracking-tighter transition-all uppercase flex items-center gap-3">
                <div className="w-2 h-2 rounded-full bg-red-500"></div> Logout
             </button>
@@ -231,6 +253,48 @@ function MainApp() {
              </div>
           </div>
         </header>
+          
+          {/* Mobile Only: Premium Buttons */}
+          <div className="md:hidden p-4 space-y-2">
+            <button onClick={async () => {
+                const choice = confirm("Unlock 2 Hours access for 10 Rs? Proceed?");                
+                if (choice) {
+                    try {
+                        const res = await fetch('/api/create-order', {
+                            method: 'POST',
+                            headers: { 'Content-Type': 'application/json' },
+                            body: JSON.stringify({ amount: 10 }),
+                        });
+                        const data = await res.json();
+                        alert(`Proceeding to secure payment for 10 Rs. Order ID: ${data.order_id}.`);
+                    } catch (e) {
+                        alert('Subscription service is temporarily unavailable. Please try again later.');
+                    }
+                }
+            }} className="w-full p-4 rounded-xl border border-brand-neon bg-brand-neon/10 text-white text-sm font-bold tracking-tighter transition-all uppercase flex items-center justify-between hover:bg-brand-neon/20 hover:scale-[1.02] shadow-[0_0_20px_rgba(0,255,157,0.2)]">
+               <span>10 Rs / 2hrs</span>
+               <div className="text-[10px] bg-brand-neon text-black px-2 py-0.5 rounded-full uppercase font-black">Limited Time</div>
+            </button>
+            <button onClick={async () => {
+                const choice = confirm("Unlock EVILGPT PRO: Lifetime access, custom models, and priority processing. Proceed to payment?");                
+                if (choice) {
+                    try {
+                        const res = await fetch('/api/create-order', {
+                            method: 'POST',
+                            headers: { 'Content-Type': 'application/json' },
+                            body: JSON.stringify({ amount: 100 }),
+                        });
+                        const data = await res.json();
+                        alert(`Proceeding to secure payment for Order ID: ${data.order_id}.`);
+                    } catch (e) {
+                        alert('Subscription service is temporarily unavailable. Please try again later.');
+                    }
+                }
+            }} className="w-full p-4 rounded-xl border border-brand-neon bg-brand-neon/10 text-white text-sm font-bold tracking-tighter transition-all uppercase flex items-center justify-between hover:bg-brand-neon/20 hover:scale-[1.02] shadow-[0_0_20px_rgba(0,255,157,0.2)]">
+               <span>Upgrade to PRO</span>
+               <div className="text-[10px] bg-brand-neon text-black px-2 py-0.5 rounded-full uppercase font-black">Lifetime</div>
+            </button>
+          </div>
 
         <div className="flex-1 overflow-auto p-4 sm:p-6 space-y-6">
           {messages.length === 0 ? (
