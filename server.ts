@@ -41,8 +41,12 @@ async function startServer() {
       };
       const response = await Cashfree.PGCreateOrder("2023-08-01", request);
       console.log('Cashfree order response full:', JSON.stringify(response));
-      // Cashfree SDK often returns data nested within a 'data' property
-      const orderData = response.data || response;
+      
+      const orderData = response.data;
+      if (!orderData || !orderData.payment_session_id) {
+          console.error("Cashfree order response missing payment_session_id:", JSON.stringify(orderData));
+          throw new Error("Cashfree API failed to return a payment_session_id");
+      }
       res.json(orderData);
     } catch (error: any) {
       console.error("Cashfree API error details:", error.response?.data || error.message || error);
