@@ -2,7 +2,7 @@ import express from "express";
 import { createServer as createViteServer } from "vite";
 import path from "path";
 // Removed top-level initialization
-import { Cashfree } from "cashfree-pg";
+import { Cashfree, Environment } from "cashfree-pg";
 
 // Lazy initialization function
 function initCashfree() {
@@ -11,7 +11,7 @@ function initCashfree() {
   }
   Cashfree.XClientId = process.env.CASHFREE_CLIENT_ID;
   Cashfree.XClientSecret = process.env.CASHFREE_CLIENT_SECRET;
-  Cashfree.XEnvironment = Cashfree.Environment.PRODUCTION;
+  Cashfree.XEnvironment = Environment.PRODUCTION;
 }
 
 async function startServer() {
@@ -40,10 +40,13 @@ async function startServer() {
         },
       };
       const response = await Cashfree.PGCreateOrder("2023-08-01", request);
-      res.json(response.data);
-    } catch (error) {
-      console.error("Cashfree API error:", error);
-      res.status(500).json({ error: "Failed to create order" });
+      console.log('Cashfree order response full:', JSON.stringify(response));
+      // Cashfree SDK often returns data nested within a 'data' property
+      const orderData = response.data || response;
+      res.json(orderData);
+    } catch (error: any) {
+      console.error("Cashfree API error details:", error.response?.data || error.message || error);
+      res.status(500).json({ error: "Failed to create order", message: error.message });
     }
   });
 

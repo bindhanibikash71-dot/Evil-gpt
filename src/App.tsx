@@ -80,7 +80,7 @@ function MainApp() {
 
         // @ts-ignore
         if (window.Cashfree) {
-            const cashfree = new window.Cashfree({ mode: 'production' });
+            const cashfree = window.Cashfree({ mode: 'production' });
             cashfree.checkout({
                 paymentSessionId: data.payment_session_id,
             });
