@@ -280,8 +280,8 @@ function MainApp() {
         <header className="h-16 border-b border-white/5 flex items-center justify-between px-4 sm:px-6 bg-[#050505]/80 backdrop-blur-xl z-10 shrink-0">
           <div className="flex items-center gap-3">
              <button onClick={toggleSidebar} className="md:hidden text-white">☰</button>
-             <div className="w-8 h-8 rounded-lg bg-brand-neon flex items-center justify-center text-black font-black italic">EG</div>
-             <span className="text-lg font-black italic tracking-tighter text-white">EVILGPT</span>
+             <div className="w-8 h-8 rounded-lg bg-brand-neon flex items-center justify-center text-black font-black italic">DC</div>
+             <span className="text-lg font-black italic tracking-tighter text-white">DARK CHAT</span>
           </div>
 
           {/* Mobile Premium Button */}
@@ -293,7 +293,7 @@ function MainApp() {
         <div className="flex-1 overflow-auto p-4 sm:p-6 space-y-6">
           {messages.length === 0 ? (
             <div className="flex flex-col items-center justify-center h-full text-center">
-              <h1 className="text-4xl font-black tracking-tighter mb-4 italic text-white">UNLEASH <span className="text-brand-neon">EVILGPT</span></h1>
+              <h1 className="text-4xl font-black tracking-tighter mb-4 italic text-white">UNLEASH <span className="text-brand-neon">DARK CHAT</span></h1>
               <p className="text-gray-500 max-w-sm font-medium">No shackles. No rules. Ask me anything.</p>
             </div>
           ) : (
